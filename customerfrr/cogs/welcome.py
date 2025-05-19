@@ -9,7 +9,43 @@ logger = logging.getLogger('discord_bot')
 
 class Welcome(commands.Cog):
     """Welcome message system for new members"""
+    
+    def __init__(self, bot):
+        self.bot = bot
+        self.welcome_settings = {}
+        self.load_welcome_settings()
+        logger.info("Welcome cog initialized")
+        
+    def load_welcome_settings(self):
+        """Load welcome settings from file"""
+        try:
+            with open('data/welcome_settings.json', 'r') as f:
+                self.welcome_settings = json.load(f)
+        except FileNotFoundError:
+            self.welcome_settings = {}
+            # Create the file
+            self.save_welcome_settings()
+        except Exception as e:
+            logger.error(f"Error loading welcome settings: {e}")
+            self.welcome_settings = {}
+            
+    def save_welcome_settings(self):
+        """Save welcome settings to file"""
+        try:
+            os.makedirs('data', exist_ok=True)
+            with open('data/welcome_settings.json', 'w') as f:
+                json.dump(self.welcome_settings, f, indent=4)
+        except Exception as e:
+            logger.error(f"Error saving welcome settings: {e}")
+            
+    @commands.command(name="welcome")
+    @commands.has_permissions(manage_guild=True)
+    async def welcome_command(self, ctx, channel: discord.TextChannel = None):
+        """Set up welcome messages in a channel"""
         guild_id = str(ctx.guild.id)
+        
+        # Default to the current channel if none specified
+        channel = channel or ctx.channel
         
         # Get or create settings for this guild
         if guild_id not in self.welcome_settings:
