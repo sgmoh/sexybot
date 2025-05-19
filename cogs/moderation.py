@@ -436,7 +436,7 @@ class Moderation(commands.Cog):
             )
             await ctx.send(embed=error_embed)
     
-    @mod.command(name="mute")
+    @commands.command(name="mute")
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def mute_member(self, ctx, member: discord.Member, duration: str = None, *, reason="No reason provided"):
@@ -510,6 +510,7 @@ class Moderation(commands.Cog):
             # Create mute embed
             if duration:
                 description = f"{member.mention} has been muted for {duration}."
+                seconds = self.parse_time_string(duration)
                 unmute_time = datetime.utcnow() + timedelta(seconds=seconds)
                 time_str = unmute_time.strftime("%Y-%m-%d %H:%M UTC")
             else:
@@ -615,7 +616,7 @@ class Moderation(commands.Cog):
             )
             await ctx.send(embed=error_embed)
     
-    @mod.command(name="unmute")
+    @commands.command(name="unmute")
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def unmute_member(self, ctx, member: discord.Member):
