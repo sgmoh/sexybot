@@ -14,6 +14,14 @@ logger = logging.getLogger('discord_bot')
 
 class Utility(commands.Cog):
     """Utility commands for server management and information"""
+    
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"Utility cog initialized")
+    
+    @commands.command(name="userinfo")
+    async def userinfo(self, ctx, member: discord.Member = None):
+        """Show information about a user"""
         # Default to the command invoker if no member specified
         member = member or ctx.author
         
@@ -169,101 +177,30 @@ class Utility(commands.Cog):
     @commands.command(name="ping")
     async def ping(self, ctx):
         """Check the bot's latency"""
-        # Get member count with this role
-        member_count = len(role.members)
+        # Calculate latency and format it
+        latency = round(self.bot.latency * 1000)
         
         # Create embed
         embed = discord.Embed(
-            title=f"{role.name} Role Information",
-            color=role.color
+            title="🏓 Pong!",
+            description=f"Bot latency: **{latency}ms**",
+            color=CONFIG['colors']['info']
         )
         
-        # Add role ID
+        # Add additional info if needed
         embed.add_field(
-            name="🆔 Role ID",
-            value=role.id,
+            name="API Latency",
+            value=f"{latency}ms",
             inline=True
         )
         
-        # Add color
-        hex_color = str(role.color).upper()
         embed.add_field(
-            name="🎨 Color",
-            value=hex_color,
+            name="Status",
+            value="✅ Online" if latency < 300 else "⚠️ High Latency",
             inline=True
         )
         
-        # Add creation date
-        created_timestamp = int(role.created_at.timestamp())
-        created_date = f"<t:{created_timestamp}:F>\n<t:{created_timestamp}:R>"
-        
-        embed.add_field(
-            name="📅 Created",
-            value=created_date,
-            inline=True
-        )
-        
-        # Add position
-        position = ctx.guild.roles.index(role)
-        total_roles = len(ctx.guild.roles)
-        
-        embed.add_field(
-            name="📊 Position",
-            value=f"{total_roles - position}/{total_roles}",
-            inline=True
-        )
-        
-        # Add mentionable info
-        embed.add_field(
-            name="💬 Mentionable",
-            value="Yes" if role.mentionable else "No",
-            inline=True
-        )
-        
-        # Add hoisting info (displayed separately)
-        embed.add_field(
-            name="👁️ Displayed Separately",
-            value="Yes" if role.hoist else "No",
-            inline=True
-        )
-        
-        # Add managed info
-        embed.add_field(
-            name="🤖 Managed by Integration",
-            value="Yes" if role.managed else "No",
-            inline=True
-        )
-        
-        # Add members with role
-        embed.add_field(
-            name="👥 Members",
-            value=member_count,
-            inline=True
-        )
-        
-        # Add role mention
-        embed.add_field(
-            name="📝 Mention",
-            value=role.mention,
-            inline=True
-        )
-        
-        # Add permissions
-        if role.permissions.value > 0:
-            permissions = []
-            for perm, value in role.permissions:
-                if value:
-                    # Format permission name (convert manage_guild to Manage Guild)
-                    formatted_perm = perm.replace("_", " ").title()
-                    permissions.append(formatted_perm)
-                    
-            if permissions:
-                embed.add_field(
-                    name="🔑 Permissions",
-                    value=", ".join(permissions) if len(", ".join(permissions)) < 1024 else f"{len(permissions)} permissions",
-                    inline=False
-                )
-        
+        # Send the embed
         await ctx.send(embed=embed)
     
     @commands.command(name="channelinfo")
