@@ -397,7 +397,7 @@ class Moderation(commands.Cog):
             )
             await ctx.send(embed=error_embed)
     
-    @commands.command(name="slowmode")
+    @commands.command(name="setslowmode")
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions(manage_channels=True)
     async def set_slowmode(self, ctx, seconds: int):

@@ -79,7 +79,7 @@ class Welcome(commands.Cog):
         
         await ctx.send(embed=embed)
     
-    @welcome.command(name="message")
+    @commands.command(name="welcomemessage")
     @commands.has_permissions(manage_guild=True)
     async def welcome_message(self, ctx, *, message):
         """Set the welcome message"""
