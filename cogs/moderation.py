@@ -113,7 +113,7 @@ class Moderation(commands.Cog):
             
         await ctx.send(embed=embed)
     
-    @mod.command(name="warnings")
+    @commands.command(name="warnings")
     @commands.has_permissions(kick_members=True)
     async def view_warnings(self, ctx, member: discord.Member):
         """View warnings for a member"""
@@ -160,7 +160,7 @@ class Moderation(commands.Cog):
             
         await ctx.send(embed=embed)
     
-    @mod.command(name="clearwarnings")
+    @commands.command(name="clearwarnings")
     @commands.has_permissions(kick_members=True)
     async def clear_warnings(self, ctx, member: discord.Member):
         """Clear warnings for a member"""
@@ -198,7 +198,7 @@ class Moderation(commands.Cog):
         
         await ctx.send(embed=embed)
     
-    @mod.command(name="kick")
+    @commands.command(name="kick")
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
     async def kick_member(self, ctx, member: discord.Member, *, reason="No reason provided"):
@@ -257,7 +257,7 @@ class Moderation(commands.Cog):
             )
             await ctx.send(embed=error_embed)
     
-    @mod.command(name="ban")
+    @commands.command(name="ban")
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     async def ban_member(self, ctx, member: discord.Member, *, reason="No reason provided"):
@@ -316,7 +316,7 @@ class Moderation(commands.Cog):
             )
             await ctx.send(embed=error_embed)
     
-    @mod.command(name="unban")
+    @commands.command(name="unban")
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     async def unban_member(self, ctx, *, user_name):
@@ -360,7 +360,7 @@ class Moderation(commands.Cog):
         
         await ctx.send(embed=embed)
     
-    @mod.command(name="purge")
+    @commands.command(name="purge")
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
     async def purge_messages(self, ctx, amount: int):
@@ -397,7 +397,7 @@ class Moderation(commands.Cog):
             )
             await ctx.send(embed=error_embed)
     
-    @mod.command(name="slowmode")
+    @commands.command(name="slowmode")
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions(manage_channels=True)
     async def set_slowmode(self, ctx, seconds: int):
