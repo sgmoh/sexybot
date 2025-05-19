@@ -11,6 +11,38 @@ logger = logging.getLogger('discord_bot')
 
 class Moderation(commands.Cog):
     """Server moderation commands"""
+    
+    def __init__(self, bot):
+        self.bot = bot
+        self.moderation_settings = {}
+        self.load_moderation_settings()
+        logger.info("Moderation cog initialized")
+    
+    def load_moderation_settings(self):
+        """Load moderation settings from file"""
+        try:
+            with open('data/moderation_settings.json', 'r') as f:
+                self.moderation_settings = json.load(f)
+        except FileNotFoundError:
+            self.moderation_settings = {}
+            self.save_moderation_settings()
+        except Exception as e:
+            logger.error(f"Error loading moderation settings: {e}")
+            self.moderation_settings = {}
+    
+    def save_moderation_settings(self):
+        """Save moderation settings to file"""
+        try:
+            os.makedirs('data', exist_ok=True)
+            with open('data/moderation_settings.json', 'w') as f:
+                json.dump(self.moderation_settings, f, indent=4)
+        except Exception as e:
+            logger.error(f"Error saving moderation settings: {e}")
+    
+    @commands.command(name="warn")
+    @commands.has_permissions(manage_messages=True)
+    async def warn(self, ctx, member: discord.Member, *, reason="No reason provided"):
+        """Warn a member"""
         guild_id = str(ctx.guild.id)
         user_id = str(member.id)
         

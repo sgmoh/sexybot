@@ -9,6 +9,15 @@ logger = logging.getLogger('discord_bot')
 
 class Timeout(commands.Cog):
     """Commands for using Discord's timeout feature"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"Timeout cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         # Check if user can be timed out
         if member.top_role >= ctx.author.top_role and ctx.author != ctx.guild.owner:
             await ctx.send(embed=EmbedCreator.create_error_embed(

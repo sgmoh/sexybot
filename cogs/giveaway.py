@@ -24,6 +24,15 @@ TIME_DICT = {
 
 class Giveaway(commands.Cog):
     """Giveaway system"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"Giveaway cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         # Check duration format
         seconds = self.convert_time_to_seconds(duration)
         if not seconds:

@@ -11,6 +11,15 @@ logger = logging.getLogger('discord_bot')
 
 class IslamicCommands(commands.Cog):
     """Islamic commands and utilities"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"IslamicCommands cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         if dua_name:
             # Look for specific dua
             matching_duas = [d for d in self.duas if d["name"].lower() == dua_name.lower()]

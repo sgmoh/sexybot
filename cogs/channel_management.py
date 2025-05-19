@@ -8,6 +8,15 @@ logger = logging.getLogger('discord_bot')
 
 class ChannelManagement(commands.Cog):
     """Commands for managing channel permissions and settings"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"ChannelManagement cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         # Default to current channel if none provided
         channel = channel or ctx.channel
         

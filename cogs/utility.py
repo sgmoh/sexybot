@@ -14,6 +14,15 @@ logger = logging.getLogger('discord_bot')
 
 class Utility(commands.Cog):
     """Utility commands for server management and information"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"Utility cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         # Default to the command invoker if no member specified
         member = member or ctx.author
         

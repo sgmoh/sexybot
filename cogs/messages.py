@@ -10,6 +10,15 @@ logger = logging.getLogger('discord_bot')
 
 class Messages(commands.Cog):
     """Message tracking system"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"Messages cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         # Default to command author if no member specified
         if member is None:
             member = ctx.author

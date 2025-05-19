@@ -14,6 +14,15 @@ logger = logging.getLogger('discord_bot')
 
 class Levels(commands.Cog):
     """Level tracking system"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"Levels cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         if member is None:
             member = ctx.author
             

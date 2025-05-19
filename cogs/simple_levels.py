@@ -36,6 +36,15 @@ class SimpleLevel:
 
 class SimpleLevels(commands.Cog):
     """Level tracking system with dedicated notification channel"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"SimpleLevels cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         # Use command invoker if no member specified
         if not member:
             member = ctx.author

@@ -11,6 +11,15 @@ logger = logging.getLogger('discord_bot')
 
 class Polls(commands.Cog):
     """Poll creation system for voting"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"Polls cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         # Validate options
         if len(options) < 2:
             embed = discord.Embed(

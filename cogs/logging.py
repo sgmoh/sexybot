@@ -9,6 +9,15 @@ logger = logging.getLogger('discord_bot')
 
 class Logging(commands.Cog):
     """Server logging system"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"Logging cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         # Update log channel
         self.log_channels[ctx.guild.id] = channel.id
         self.save_settings()

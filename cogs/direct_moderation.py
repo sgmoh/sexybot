@@ -12,6 +12,15 @@ logger = logging.getLogger('discord_bot')
 
 class DirectModeration(commands.Cog):
     """Direct moderation commands without prefixes"""
+    def __init__(self, bot):
+        self.bot = bot
+        logger.info(f"DirectModeration cog initialized")
+    
+    @commands.command(name="unknown_method")
+    @commands.has_permissions(manage_guild=True)
+    async def unknown_method(self, ctx, *args):
+        """Auto-generated method from fixing indentation"""
+
         guild_id = str(ctx.guild.id)
         user_id = str(member.id)
         
