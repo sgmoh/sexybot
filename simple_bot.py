@@ -21,7 +21,7 @@ load_dotenv()
 
 # Discord bot configuration
 TOKEN = os.getenv('DISCORD_TOKEN')
-PREFIX = '!'
+PREFIX = '!'  # This is the prefix for text commands like !ping
 
 # UptimeRobot configuration
 PORT = int(os.getenv("PORT", "8080"))
@@ -154,15 +154,101 @@ def start_stats_updater():
     thread.start()
     return thread
 
-# Set up Discord bot
+# Set up the Discord bot
 intents = discord.Intents.default()
-intents.message_content = True
+intents.message_content = True  # Need this to read message content
 intents.members = True
-bot = commands.Bot(command_prefix=PREFIX, intents=intents)
+bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 # Track command execution count
 command_count = 0
 
+# This class handles manually listening for message commands
+class MessageCommandHandler:
+    @staticmethod
+    async def process_commands(message):
+        if message.author.bot:
+            return
+        
+        if not message.content.startswith(PREFIX):
+            return
+            
+        # Parse the command and arguments
+        parts = message.content[len(PREFIX):].strip().split()
+        if not parts:
+            return
+            
+        command = parts[0].lower()
+        args = parts[1:]
+        
+        # Process the command
+        if command == "ping":
+            await message.channel.send(f"🏓 Pong! Latency: {round(bot.latency * 1000)}ms")
+            MessageCommandHandler.log_command(message, command)
+            
+        elif command == "uptime":
+            uptime_seconds = bot_stats["uptime_seconds"]
+            hours = int(uptime_seconds // 3600)
+            minutes = int((uptime_seconds % 3600) // 60)
+            seconds = int(uptime_seconds % 60)
+            await message.channel.send(f"⏱️ Bot has been online for: {hours}h {minutes}m {seconds}s")
+            MessageCommandHandler.log_command(message, command)
+            
+        elif command == "stats":
+            embed = discord.Embed(
+                title="📊 Bot Statistics",
+                color=discord.Color.blue()
+            )
+            
+            embed.add_field(name="Servers", value=str(bot_stats["stats"]["guilds"]), inline=True)
+            embed.add_field(name="Users", value=str(bot_stats["stats"]["users"]), inline=True)
+            embed.add_field(name="Commands Used", value=str(bot_stats["stats"]["commands_processed"]), inline=True)
+            
+            uptime_seconds = bot_stats["uptime_seconds"]
+            hours = int(uptime_seconds // 3600)
+            minutes = int((uptime_seconds % 3600) // 60)
+            seconds = int(uptime_seconds % 60)
+            embed.add_field(name="Uptime", value=f"{hours}h {minutes}m {seconds}s", inline=False)
+            
+            embed.add_field(name="Status Dashboard", value=f"[View Dashboard](http://localhost:{PORT}/dashboard)", inline=False)
+            
+            await message.channel.send(embed=embed)
+            MessageCommandHandler.log_command(message, command)
+            
+        elif command == "status":
+            embed = discord.Embed(
+                title="✅ Bot Status",
+                description="The bot is running properly!",
+                color=discord.Color.green()
+            )
+            await message.channel.send(embed=embed)
+            MessageCommandHandler.log_command(message, command)
+            
+        elif command == "help":
+            embed = discord.Embed(
+                title="🤖 Bot Commands",
+                description=f"Here are the commands you can use with the `{PREFIX}` prefix:",
+                color=discord.Color.blue()
+            )
+            
+            embed.add_field(name=f"{PREFIX}ping", value="Check the bot's latency", inline=False)
+            embed.add_field(name=f"{PREFIX}uptime", value="Check how long the bot has been online", inline=False)
+            embed.add_field(name=f"{PREFIX}stats", value="View bot statistics", inline=False)
+            embed.add_field(name=f"{PREFIX}status", value="Check if the bot is running properly", inline=False)
+            embed.add_field(name=f"{PREFIX}help", value="Show this help message", inline=False)
+            
+            await message.channel.send(embed=embed)
+            MessageCommandHandler.log_command(message, command)
+    
+    @staticmethod
+    def log_command(message, command_name):
+        """Log a command execution and update stats"""
+        global command_count, bot_stats
+        command_count += 1
+        bot_stats["stats"]["commands_processed"] = command_count
+        logger.info(f"Command processed: {command_name} by {message.author} (Total: {command_count})")
+
+# Discord bot events
 @bot.event
 async def on_ready():
     """Called when the bot is ready"""
@@ -177,9 +263,6 @@ async def on_ready():
     
     logger.info(f'Bot is in {len(bot.guilds)} guilds with {total_users} total users')
     
-    # Start the stats update task
-    update_stats.start()
-    
     # Set bot status
     await bot.change_presence(activity=discord.Activity(
         type=discord.ActivityType.watching, 
@@ -187,12 +270,9 @@ async def on_ready():
     ))
 
 @bot.event
-async def on_command_completion(ctx):
-    """Track command usage for UptimeRobot stats"""
-    global command_count, bot_stats
-    command_count += 1
-    bot_stats["stats"]["commands_processed"] = command_count
-    logger.info(f"Command processed: {ctx.command.name} (Total: {command_count})")
+async def on_message(message):
+    """Process messages for commands"""
+    await MessageCommandHandler.process_commands(message)
 
 @bot.event
 async def on_guild_join(guild):
@@ -212,69 +292,25 @@ async def on_guild_remove(guild):
     bot_stats["stats"]["users"] = total_users
     logger.info(f"Left guild: {guild.name} (ID: {guild.id})")
 
-@tasks.loop(minutes=5)
-async def update_stats():
-    """Update bot stats periodically"""
-    global bot_stats
-    total_users = sum(guild.member_count for guild in bot.guilds)
-    bot_stats["stats"]["guilds"] = len(bot.guilds)
-    bot_stats["stats"]["users"] = total_users
-    logger.info(f"Stats updated: {len(bot.guilds)} guilds, {total_users} users, {command_count} commands")
-
-# Basic bot commands
-@bot.command(name="ping", help="Check the bot's latency")
-async def ping(ctx):
-    """Simple ping command to check bot latency"""
-    latency = round(bot.latency * 1000)
-    await ctx.send(f"🏓 Pong! Latency: {latency}ms")
-
-@bot.command(name="uptime", help="Check the bot's uptime")
-async def uptime(ctx):
-    """Show the bot's uptime"""
-    uptime_seconds = bot_stats["uptime_seconds"]
-    hours = int(uptime_seconds // 3600)
-    minutes = int((uptime_seconds % 3600) // 60)
-    seconds = int(uptime_seconds % 60)
-    
-    await ctx.send(f"⏱️ Bot has been online for: {hours}h {minutes}m {seconds}s")
-
-@bot.command(name="stats", help="Show bot statistics")
-async def stats(ctx):
-    """Show the bot statistics"""
-    embed = discord.Embed(
-        title="📊 Bot Statistics",
-        color=discord.Color.blue()
-    )
-    
-    embed.add_field(name="Servers", value=str(bot_stats["stats"]["guilds"]), inline=True)
-    embed.add_field(name="Users", value=str(bot_stats["stats"]["users"]), inline=True)
-    embed.add_field(name="Commands Used", value=str(bot_stats["stats"]["commands_processed"]), inline=True)
-    
-    uptime_seconds = bot_stats["uptime_seconds"]
-    hours = int(uptime_seconds // 3600)
-    minutes = int((uptime_seconds % 3600) // 60)
-    seconds = int(uptime_seconds % 60)
-    embed.add_field(name="Uptime", value=f"{hours}h {minutes}m {seconds}s", inline=False)
-    
-    embed.add_field(name="Status Dashboard", value=f"[View Dashboard](http://{os.getenv('REPL_SLUG', 'localhost')}:{PORT}/dashboard)", inline=False)
-    
-    await ctx.send(embed=embed)
-
-@bot.command(name="status", help="Check the bot's status")
-async def status(ctx):
-    """Show the bot's status"""
-    embed = discord.Embed(
-        title="✅ Bot Status",
-        description="The bot is running properly!",
-        color=discord.Color.green()
-    )
-    
-    await ctx.send(embed=embed)
+# Function to update stats periodically
+async def update_stats_periodically():
+    """Update bot stats every 5 minutes"""
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        total_users = sum(guild.member_count for guild in bot.guilds)
+        bot_stats["stats"]["guilds"] = len(bot.guilds)
+        bot_stats["stats"]["users"] = total_users
+        logger.info(f"Stats updated: {len(bot.guilds)} guilds, {total_users} users, {command_count} commands")
+        await asyncio.sleep(300)  # 5 minutes
 
 # Main function to start the bot
 async def start_bot():
-    """Start the Discord bot"""
+    """Start the Discord bot with background tasks"""
     try:
+        # Start the stats updater task
+        bot.loop.create_task(update_stats_periodically())
+        
+        # Start the bot
         logger.info("Starting Discord bot...")
         await bot.start(TOKEN)
     except Exception as e:

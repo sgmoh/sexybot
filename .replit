@@ -21,7 +21,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python simple_bot.py"
+args = "python start_bot.py"
 waitForPort = 8080
 
 [deployment]
